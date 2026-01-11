@@ -1,4 +1,7 @@
+console.log('FeedItem.js LOADED - V3');
+
 function LinkFeedItem(post) {
+    // ... rest of the function stays same but let's ensure it's clean ...
     // Calculate dynamic conic-gradient
     let gradientString = '';
     let currentPercent = 0;
@@ -57,48 +60,6 @@ function LinkFeedItem(post) {
         mainBtnText = 'Riskli';
     }
 
-    // Ensure toggleReaction function is available globally
-    if (!window.toggleReaction) {
-        window.toggleReaction = async (id, type) => {
-            if (!(await checkAuth())) return; // Auth Guard
-
-            const user = await sb_auth.getUser();
-
-            // In Supabase, we either insert or update/delete based on current state
-            // Let's check for existing reaction first
-            const { data: existing } = await sb
-                .from('reactions')
-                .select('*')
-                .eq('post_id', id)
-                .eq('user_id', user.id)
-                .single();
-
-            if (!type) {
-                // Main like button click
-                if (existing) {
-                    await sb.from('reactions').delete().eq('id', existing.id);
-                } else {
-                    await sb.from('reactions').insert({ post_id: id, user_id: user.id, type: 'like' });
-                }
-            } else {
-                // Specific reaction click
-                if (existing) {
-                    if (existing.type === type) {
-                        await sb.from('reactions').delete().eq('id', existing.id);
-                    } else {
-                        await sb.from('reactions').update({ type: type }).eq('id', existing.id);
-                    }
-                } else {
-                    await sb.from('reactions').insert({ post_id: id, user_id: user.id, type: type });
-                }
-            }
-
-            // Re-render
-            const route = window.location.hash.slice(1) || '/';
-            navigate(route);
-        };
-    }
-
     // FOLLOW LOGIC
     const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
     const isFollowing = followList.includes(post.user.username);
@@ -106,47 +67,14 @@ function LinkFeedItem(post) {
     const followBtnClass = isFollowing ? 'follow-btn active' : 'follow-btn';
     const followBtnIcon = isFollowing ? '<i class="ph-fill ph-check"></i>' : '<i class="ph ph-bell"></i>';
 
-    if (!window.toggleFollow) {
-        window.toggleFollow = async (username) => {
-            if (!(await checkAuth())) return; // Auth Guard
+    // Hide follow button if it's the current user's own post
+    const isSelf = window.currentUser && (post.profiles?.id === window.currentUser.id || post.user_id === window.currentUser.id || post.user.username === (window.currentUser.user_metadata?.username || window.currentUser.email?.split('@')[0]));
 
-            const user = await sb_auth.getUser();
-
-            // 1. Get the ID of the user being followed (target user)
-            const { data: targetProfile } = await sb
-                .from('profiles')
-                .select('id')
-                .eq('username', username)
-                .single();
-
-            if (!targetProfile) return;
-
-            // 2. Check if already following
-            const { data: existingFollow } = await sb
-                .from('follows')
-                .select('*')
-                .eq('follower_id', user.id)
-                .eq('following_id', targetProfile.id)
-                .single();
-
-            if (existingFollow) {
-                await sb.from('follows').delete().eq('follower_id', user.id).eq('following_id', targetProfile.id);
-            } else {
-                await sb.from('follows').insert({ follower_id: user.id, following_id: targetProfile.id });
-            }
-
-            // Sync legacy localStorage for Following Tab filter (temporarily)
-            const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
-            const index = followList.indexOf(username);
-            if (index === -1) followList.push(username);
-            else followList.splice(index, 1);
-            localStorage.setItem('finmates_following', JSON.stringify(followList));
-
-            // Re-render
-            const route = window.location.hash.slice(1) || '/';
-            navigate(route);
-        };
-    }
+    const followBtnHTML = isSelf ? '' : `
+        <button class="${followBtnClass}" onclick="toggleFollow('${post.user.username}')" style="cursor: pointer; position: relative; z-index: 10;">
+             ${followBtnText} ${followBtnIcon}
+        </button>
+    `;
 
     return `
         <article class="portfolio-card">
@@ -158,9 +86,7 @@ function LinkFeedItem(post) {
                         <span>${post.user.date}</span>
                     </div>
                 </div>
-                <button class="${followBtnClass}" onclick="toggleFollow('${post.user.username}')">
-                     ${followBtnText} ${followBtnIcon}
-                </button>
+                ${followBtnHTML}
             </div>
 
             <div class="card-content">
@@ -232,3 +158,115 @@ function LinkFeedItem(post) {
         </article>
     `;
 }
+
+// GLOBAL HANDLERS - Defined once
+window.toggleReaction = async (id, type) => {
+    console.log('toggleReaction triggered:', id, type);
+    if (!(await checkAuth())) return;
+
+    const user = await sb_auth.getUser();
+
+    const { data: existing } = await sb
+        .from('reactions')
+        .select('*')
+        .eq('post_id', id)
+        .eq('user_id', user.id)
+        .single();
+
+    if (!type) {
+        if (existing) {
+            await sb.from('reactions').delete().eq('id', existing.id);
+        } else {
+            await sb.from('reactions').insert({ post_id: id, user_id: user.id, type: 'like' });
+        }
+    } else {
+        if (existing) {
+            if (existing.type === type) {
+                await sb.from('reactions').delete().eq('id', existing.id);
+            } else {
+                await sb.from('reactions').update({ type: type }).eq('id', existing.id);
+            }
+        } else {
+            await sb.from('reactions').insert({ post_id: id, user_id: user.id, type: type });
+        }
+    }
+
+    navigate(window.currentPath || '/');
+};
+
+window.toggleFollow = async (username) => {
+    // IMMEDIATE DEBUG ALERT - This proves the click reached the script
+    alert('DEBUG: Takip butonuna basıldı! Kullanıcı: ' + username);
+    console.log('toggleFollow triggered for:', username);
+
+    // Visual feedback
+    const btns = document.querySelectorAll(`button[onclick*="toggleFollow('${username}')"]`);
+    btns.forEach(b => b.style.opacity = '0.5');
+
+    try {
+        if (!(await checkAuth())) return;
+
+        const user = await sb_auth.getUser();
+
+        let targetId = null;
+        let isMock = false;
+
+        // 1. Try to find the user in real DB
+        const { data: targetProfile, error: profileError } = await sb
+            .from('profiles')
+            .select('id')
+            .eq('username', username)
+            .single();
+
+        if (profileError || !targetProfile) {
+            console.warn(`Profile @${username} not in DB. Using mock follow mode.`);
+            isMock = true;
+        } else {
+            targetId = targetProfile.id;
+        }
+
+        if (targetId && targetId === user.id) {
+            alert('Kendi kendinizi takip edemezsiniz.');
+            return;
+        }
+
+        // 2. Database Sync (only if real user)
+        if (!isMock && targetId) {
+            const { data: existingFollow } = await sb
+                .from('follows')
+                .select('*')
+                .eq('follower_id', user.id)
+                .eq('following_id', targetId)
+                .single();
+
+            if (existingFollow) {
+                await sb.from('follows').delete().eq('follower_id', user.id).eq('following_id', targetId);
+            } else {
+                await sb.from('follows').insert({
+                    follower_id: user.id,
+                    following_id: targetId
+                });
+            }
+        }
+
+        // 3. Local Storage Sync (Always update this for UI state)
+        // This ensures the "Following" tab filter works even for mock users
+        const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
+        const index = followList.indexOf(username);
+        if (index === -1) {
+            followList.push(username);
+            if (isMock) alert(`Not: @${username} bir örnek veridir. Takip işlemi yerel olarak (Local Storage) kaydedildi.`);
+        } else {
+            followList.splice(index, 1);
+        }
+        localStorage.setItem('finmates_following', JSON.stringify(followList));
+
+        // Re-render
+        navigate(window.currentPath || '/');
+    } catch (err) {
+        console.error('Follow error:', err);
+        alert('Takip işlemi sırasında hata: ' + err.message);
+    } finally {
+        btns.forEach(b => b.style.opacity = '1');
+    }
+};
