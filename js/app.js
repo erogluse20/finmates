@@ -116,7 +116,7 @@ async function renderFeed() {
         stats: { likes: 0, insights: 0, different: 0, risks: 0 } // Stats will need a separate join or aggregation later
     })), ...window.MOCK_POSTS];
 
-    // Sync Following list from DB if logged in
+    // Sync Following list from DB if logged in - Merge with Mock follows
     const user = await window.sb_auth.getUser();
     if (user) {
         const { data: follows } = await sb
@@ -126,7 +126,11 @@ async function renderFeed() {
 
         if (follows) {
             const dbFollowList = follows.map(f => f.profiles.username);
-            localStorage.setItem('finmates_following', JSON.stringify(dbFollowList));
+            const currentLocalFollows = JSON.parse(localStorage.getItem('finmates_following') || '[]');
+
+            // Merge: Keep all real follows from DB + any mock follows already in local
+            const mergedFollows = Array.from(new Set([...dbFollowList, ...currentLocalFollows]));
+            localStorage.setItem('finmates_following', JSON.stringify(mergedFollows));
         }
     }
 
