@@ -1,0 +1,54 @@
+:root {
+    /* Colors extracted/inspired by the uploaded image */
+    --bg-body: #121418;
+    --bg-card: #1b2028;
+    --bg-nav: #1b2028;
+    
+    --text-primary: #ffffff;
+    --text-secondary: #a0a5b1;
+    --text-accent: #3b82f6; /* Blue for links/accents */
+    
+    --color-brand: #3b82f6;
+    --color-danger: #ef4444;
+    --color-success: #10b981;
+    
+    --border-color: #2d333f;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    
+    /* Typography */
+    --font-family: 'Inter', sans-serif;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Scrollbar customization for webkit */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-body);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}

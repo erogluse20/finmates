@@ -1,0 +1,271 @@
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: var(--bg-nav);
+    height: 70px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+}
+
+.nav-item {
+    font-size: 24px;
+    color: var(--text-secondary);
+    padding: 12px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.nav-item.active {
+    color: var(--text-primary);
+}
+
+.nav-item-add {
+    position: relative;
+    top: -10px;
+    /* Float effect */
+}
+
+.add-btn {
+    width: 48px;
+    height: 48px;
+    background-color: var(--bg-card);
+    /* Lighter bg for button */
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Feed Container */
+.feed-container {
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Portfolio Card */
+.portfolio-card {
+    background-color: var(--bg-card);
+    border-radius: 16px;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 14px;
+}
+
+.user-meta h3 {
+    font-size: var(--font-size-base);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.user-meta span {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.follow-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Card Content */
+.card-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+}
+
+.card-desc {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: var(--spacing-md);
+}
+
+.card-stats {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Donut Chart Section */
+.chart-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: var(--spacing-lg) 0;
+    position: relative;
+}
+
+.donut-chart {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(var(--color-brand) 0% 27%,
+            #1e3a8a 27% 100%);
+    /* Example gradient */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.donut-chart::before {
+    content: "";
+    width: 110px;
+    height: 110px;
+    background-color: var(--bg-card);
+    border-radius: 50%;
+    position: absolute;
+}
+
+.chart-center-text {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+}
+
+.chart-center-text .count {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+}
+
+.chart-center-text .label {
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+/* Asset List */
+.asset-list {
+    margin-top: var(--spacing-md);
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.asset-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.asset-icon {
+    width: 32px;
+    height: 32px;
+    background-color: var(--color-danger);
+    color: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.asset-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-symbol {
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.asset-percent {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* Progress-like bars for assets (Blue underlines in image) */
+.asset-bar {
+    height: 3px;
+    width: 40px;
+    background-color: var(--color-brand);
+    margin-top: 4px;
+    border-radius: 2px;
+}
+
+/* Card Footer */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.like-btn {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.disclaimer {
+    font-size: 10px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
