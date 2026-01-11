@@ -29,6 +29,18 @@ async function ProfileView() {
         };
     }
 
+    // Fetch Followers count
+    const { count: followersCount } = await sb
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', sbUser?.id);
+
+    // Following count: Get from localStorage (already synced with DB + Mock users)
+    const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
+
+    profile.followers = followersCount || 0;
+    profile.following = followList.length;
+
     const user = profile;
 
     // Helper to get user's portfolios
