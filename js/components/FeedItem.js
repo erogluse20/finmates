@@ -1,7 +1,4 @@
-console.log('FeedItem.js LOADED - V3');
-
 function LinkFeedItem(post) {
-    // ... rest of the function stays same but let's ensure it's clean ...
     // Calculate dynamic conic-gradient
     let gradientString = '';
     let currentPercent = 0;
@@ -195,8 +192,6 @@ window.toggleReaction = async (id, type) => {
 };
 
 window.toggleFollow = async (username) => {
-    // IMMEDIATE DEBUG ALERT - This proves the click reached the script
-    alert('DEBUG: Takip butonuna basıldı! Kullanıcı: ' + username);
     console.log('toggleFollow triggered for:', username);
 
     // Visual feedback
@@ -255,7 +250,6 @@ window.toggleFollow = async (username) => {
         const index = followList.indexOf(username);
         if (index === -1) {
             followList.push(username);
-            if (isMock) alert(`Not: @${username} bir örnek veridir. Takip işlemi yerel olarak (Local Storage) kaydedildi.`);
         } else {
             followList.splice(index, 1);
         }
