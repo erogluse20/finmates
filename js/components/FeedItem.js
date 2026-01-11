@@ -194,19 +194,30 @@ window.toggleReaction = async (id, type) => {
 window.toggleFollow = async (username) => {
     console.log('toggleFollow triggered for:', username);
 
-    // Visual feedback
+    // 1. Optimistic UI Update
     const btns = document.querySelectorAll(`button[onclick*="toggleFollow('${username}')"]`);
-    btns.forEach(b => b.style.opacity = '0.5');
+    const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
+    const currentlyFollowing = followList.includes(username);
+
+    // Toggle state immediately in UI
+    btns.forEach(btn => {
+        if (currentlyFollowing) {
+            btn.innerHTML = 'Takip Et <i class="ph ph-bell"></i>';
+            btn.className = 'follow-btn';
+        } else {
+            btn.innerHTML = 'Takip Ediliyor <i class="ph-fill ph-check"></i>';
+            btn.className = 'follow-btn active';
+        }
+    });
 
     try {
         if (!(await checkAuth())) return;
 
         const user = await sb_auth.getUser();
-
         let targetId = null;
         let isMock = false;
 
-        // 1. Try to find the user in real DB
+        // DB Check
         const { data: targetProfile, error: profileError } = await sb
             .from('profiles')
             .select('id')
@@ -214,7 +225,6 @@ window.toggleFollow = async (username) => {
             .single();
 
         if (profileError || !targetProfile) {
-            console.warn(`Profile @${username} not in DB. Using mock follow mode.`);
             isMock = true;
         } else {
             targetId = targetProfile.id;
@@ -222,45 +232,35 @@ window.toggleFollow = async (username) => {
 
         if (targetId && targetId === user.id) {
             alert('Kendi kendinizi takip edemezsiniz.');
+            navigate(window.currentPath || '/'); // Revert UI
             return;
         }
 
-        // 2. Database Sync (only if real user)
+        // 2. Background Sync (DB)
         if (!isMock && targetId) {
-            const { data: existingFollow } = await sb
-                .from('follows')
-                .select('*')
-                .eq('follower_id', user.id)
-                .eq('following_id', targetId)
-                .single();
-
-            if (existingFollow) {
+            if (currentlyFollowing) {
                 await sb.from('follows').delete().eq('follower_id', user.id).eq('following_id', targetId);
             } else {
-                await sb.from('follows').insert({
-                    follower_id: user.id,
-                    following_id: targetId
-                });
+                await sb.from('follows').insert({ follower_id: user.id, following_id: targetId });
             }
         }
 
-        // 3. Local Storage Sync (Always update this for UI state)
-        // This ensures the "Following" tab filter works even for mock users
-        const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
-        const index = followList.indexOf(username);
-        if (index === -1) {
-            followList.push(username);
+        // 3. Local Storage Sync (Manual update to ensure persistence)
+        const updatedList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
+        const idx = updatedList.indexOf(username);
+        if (currentlyFollowing) {
+            if (idx > -1) updatedList.splice(idx, 1);
         } else {
-            followList.splice(index, 1);
+            if (idx === -1) updatedList.push(username);
         }
-        localStorage.setItem('finmates_following', JSON.stringify(followList));
+        localStorage.setItem('finmates_following', JSON.stringify(updatedList));
 
-        // Re-render
-        navigate(window.currentPath || '/');
+        // Note: No full re-render here to avoid the jarring "Loading" spinner.
+        // The UI is already updated optimistically.
+        // If we really need a full refresh, we'd call navigate() but maybe skip the spinner.
     } catch (err) {
         console.error('Follow error:', err);
-        alert('Takip işlemi sırasında hata: ' + err.message);
-    } finally {
-        btns.forEach(b => b.style.opacity = '1');
+        alert('İşlem sırasında bir hata oluştu: ' + err.message);
+        navigate(window.currentPath || '/'); // Rollback on error
     }
 };
