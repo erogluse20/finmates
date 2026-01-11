@@ -1,0 +1,141 @@
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: none;
+    /* Hidden by default */
+    align-items: flex-end;
+    /* Bottom sheet on mobile */
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+/* Modal Content */
+.modal-content {
+    background: var(--bg-card);
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    border-radius: 20px 20px 0 0;
+    height: 80vh;
+    /* Takes up 80% screen height */
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease-out;
+    border: 1px solid var(--border-color);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Search Box */
+.modal-search-box {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-input-wrapper {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+}
+
+.search-icon {
+    color: var(--text-secondary);
+    font-size: 18px;
+}
+
+.search-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+}
+
+/* Asset List */
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+}
+
+.asset-select-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.asset-select-item:active {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.asset-logo-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: contain;
+    /* or cover */
+    background: #fff;
+    /* Ensure transparent logos show up */
+}
+
+.asset-info-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-symbol-text {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.asset-name-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
