@@ -65,6 +65,7 @@ const routes = {
 // Global Auth Guard
 window.checkAuth = async () => {
     const user = await window.sb_auth.getUser();
+    window.currentUser = user; // Track globally
     if (!user) {
         navigate('/login');
         return false;
@@ -73,6 +74,9 @@ window.checkAuth = async () => {
 };
 
 async function renderFeed() {
+    // Ensure currentUser is set early
+    window.currentUser = await window.sb_auth.getUser();
+
     // Show Loading
     document.getElementById('main-content').innerHTML = `
         <div style="display:flex; justify-content:center; padding:40px;">
@@ -102,8 +106,8 @@ async function renderFeed() {
     const allPosts = [...posts.map(p => ({
         id: p.id,
         user: {
-            username: p.profiles.username || 'user',
-            avatar: p.profiles.avatar_url ? `<img src="${p.profiles.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : 'U',
+            username: p.profiles?.username || 'user',
+            avatar: p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : 'U',
             date: new Date(p.created_at).toLocaleDateString()
         },
         title: p.title,
@@ -111,6 +115,20 @@ async function renderFeed() {
         assets: p.assets,
         stats: { likes: 0, insights: 0, different: 0, risks: 0 } // Stats will need a separate join or aggregation later
     })), ...window.MOCK_POSTS];
+
+    // Sync Following list from DB if logged in
+    const user = await window.sb_auth.getUser();
+    if (user) {
+        const { data: follows } = await sb
+            .from('follows')
+            .select('profiles:following_id(username)')
+            .eq('follower_id', user.id);
+
+        if (follows) {
+            const dbFollowList = follows.map(f => f.profiles.username);
+            localStorage.setItem('finmates_following', JSON.stringify(dbFollowList));
+        }
+    }
 
     // Check active tab state (default to 'featured')
     const activeFeedTab = window.activeFeedTab || 'featured';
@@ -166,6 +184,7 @@ function renderCreate() {
 }
 
 async function navigate(path) {
+    window.currentPath = path; // Track for re-renders
     const mainContent = document.getElementById('main-content');
     const viewFn = routes[path] || routes['/'];
 
