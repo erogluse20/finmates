@@ -45,19 +45,56 @@
         </nav>
     </div>
 
-    <script src="js/data/crypto_data.js"></script>
-    <script src="js/data/bist_data.js"></script>
-    <script src="js/data/fund_data.js"></script>
-    <script src="js/data/assets.js"></script>
-    <script src="js/components/AssetSelector.js"></script>
-    <script src="js/components/FeedItem.js"></script>
-    <script src="js/views/CreatePortfolio.js"></script>
-    <script src="js/views/Profile.js"></script>
-    <script src="js/views/Login.js"></script>
-    <script src="js/views/Settings.js"></script>
+    <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase.js"></script>
-    <script src="js/app.js"></script>
+
+    <!-- App Logic & Config -->
+    <script src="js/supabase.js?v=2"></script>
+    <script src="js/app.js?v=2"></script>
+
+    <!-- Data -->
+    <script src="js/data/crypto_data.js?v=2"></script>
+    <script src="js/data/bist_data.js?v=2"></script>
+    <script src="js/data/fund_data.js?v=2"></script>
+    <script src="js/data/assets.js?v=2"></script>
+
+    <!-- Components & Views -->
+    <script src="js/components/AssetSelector.js?v=2"></script>
+    <script src="js/components/FeedItem.js?v=2"></script>
+    <script src="js/views/CreatePortfolio.js?v=2"></script>
+    <script src="js/views/Profile.js?v=2"></script>
+    <script src="js/views/Login.js?v=2"></script>
+    <script src="js/views/Settings.js?v=2"></script>
+
+    <script>
+        // NUCLEAR CACHE BUSTER: Unregister all service workers and clear cache
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister().then(() => {
+                        console.log('SW Unregistered');
+                    });
+                }
+            });
+        }
+    </script>
+
+    <!-- Version Marker for Debugging -->
+    <div
+        style="position:fixed; top:10px; left:10px; background:rgba(255,0,0,0.8); color:white; padding:4px 8px; border-radius:4px; font-size:10px; z-index:9999; pointer-events:none;">
+        CORE-V3
+    </div>
+
+    <script>
+        // Force service worker update on reload if version mismatch
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.update();
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>
