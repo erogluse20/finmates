@@ -98,7 +98,8 @@ async function ProfileView() {
                 title: p.title,
                 description: p.description,
                 assets: p.assets,
-                stats: stats
+                stats: stats,
+                user_id: p.user_id
             };
         }) || [];
 
