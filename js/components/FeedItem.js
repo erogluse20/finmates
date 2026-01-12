@@ -159,36 +159,74 @@ function LinkFeedItem(post) {
 // GLOBAL HANDLERS - Defined once
 window.toggleReaction = async (id, type) => {
     console.log('toggleReaction triggered:', id, type);
+
+    // 1. Check Auth first (but don't wait for UI update if possible)
     if (!(await checkAuth())) return;
 
+    // 2. Optimistic UI Update
+    const reactions = JSON.parse(localStorage.getItem('finmates_reactions') || '{}');
+    const existingType = reactions[id];
     const user = await sb_auth.getUser();
 
-    const { data: existing } = await sb
-        .from('reactions')
-        .select('*')
-        .eq('post_id', id)
-        .eq('user_id', user.id)
-        .single();
+    // Toggle logic for localStorage
+    if (!type) { // Default like toggle
+        if (existingType === 'like') delete reactions[id];
+        else reactions[id] = 'like';
+    } else { // Specifically typed reaction
+        if (existingType === type) delete reactions[id];
+        else reactions[id] = type;
+    }
+    localStorage.setItem('finmates_reactions', JSON.stringify(reactions));
 
-    if (!type) {
-        if (existing) {
-            await sb.from('reactions').delete().eq('id', existing.id);
-        } else {
-            await sb.from('reactions').insert({ post_id: id, user_id: user.id, type: 'like' });
-        }
-    } else {
-        if (existing) {
-            if (existing.type === type) {
-                await sb.from('reactions').delete().eq('id', existing.id);
-            } else {
-                await sb.from('reactions').update({ type: type }).eq('id', existing.id);
-            }
-        } else {
-            await sb.from('reactions').insert({ post_id: id, user_id: user.id, type: type });
-        }
+    // Update Button UI Immediately (Optimistic)
+    const container = document.querySelector(`.portfolio-card button[onclick*="toggleReaction(${id})"]`)?.closest('.portfolio-card');
+    if (container) {
+        const mainBtn = container.querySelector('.like-btn');
+        const nextReaction = reactions[id];
+
+        const config = {
+            'like': { icon: 'ph-fill ph-thumbs-up', class: 'btn-reacted-like', text: 'Beğendim' },
+            'insight': { icon: 'ph-fill ph-lightbulb', class: 'btn-reacted-insight', text: 'Öğretici' },
+            'different': { icon: 'ph-fill ph-binoculars', class: 'btn-reacted-different', text: 'Farklı' },
+            'risk': { icon: 'ph-fill ph-warning', class: 'btn-reacted-risk', text: 'Riskli' },
+            'default': { icon: 'ph ph-thumbs-up', class: '', text: 'Beğen' }
+        };
+
+        const state = config[nextReaction] || config['default'];
+        mainBtn.innerHTML = `<i class="${state.icon}"></i> ${state.text}`;
+        mainBtn.className = `like-btn ${state.class}`;
     }
 
-    navigate(window.currentPath || '/');
+    // 3. Background Sync (Database)
+    try {
+        const { data: existing } = await sb
+            .from('reactions')
+            .select('*')
+            .eq('post_id', id)
+            .eq('user_id', user.id)
+            .single();
+
+        if (!type) {
+            if (existing) {
+                await sb.from('reactions').delete().eq('id', existing.id);
+            } else {
+                await sb.from('reactions').insert({ post_id: id, user_id: user.id, type: 'like' });
+            }
+        } else {
+            if (existing) {
+                if (existing.type === type) {
+                    await sb.from('reactions').delete().eq('id', existing.id);
+                } else {
+                    await sb.from('reactions').update({ type: type }).eq('id', existing.id);
+                }
+            } else {
+                await sb.from('reactions').insert({ post_id: id, user_id: user.id, type: type });
+            }
+        }
+    } catch (err) {
+        console.error('Reaction sync error:', err);
+        // On error, we might want to rollback but usually silent failure for likes is preferred unless critical
+    }
 };
 
 window.toggleFollow = async (username) => {
