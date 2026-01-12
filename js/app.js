@@ -102,19 +102,45 @@ async function renderFeed() {
         return `<div style="padding:20px; color:red;">Veri yüklenemedi.</div>`;
     }
 
-    // Combine with MOCK for now (or eventually replace MOCK entirely)
-    const allPosts = [...posts.map(p => ({
-        id: p.id,
-        user: {
-            username: p.profiles?.username || 'user',
-            avatar: p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : 'U',
-            date: new Date(p.created_at).toLocaleDateString()
-        },
-        title: p.title,
-        description: p.description,
-        assets: p.assets,
-        stats: { likes: 0, insights: 0, different: 0, risks: 0 } // Stats will need a separate join or aggregation later
-    })), ...window.MOCK_POSTS];
+    // Fetch Reactions for all these posts to get counts
+    const postIds = posts.map(p => p.id);
+    const { data: allReactions } = await sb
+        .from('reactions')
+        .select('*')
+        .in('post_id', postIds);
+
+    // Sync user's own reactions to localStorage for instant UI
+    if (window.currentUser) {
+        const myReactions = {};
+        allReactions?.filter(r => r.user_id === window.currentUser.id)
+            .forEach(r => myReactions[r.post_id] = r.type);
+        localStorage.setItem('finmates_reactions', JSON.stringify(myReactions));
+    }
+
+    // Combine with MOCK for now
+    const allPosts = [...posts.map(p => {
+        // Calculate counts for this post
+        const postReactions = allReactions?.filter(r => r.post_id === p.id) || [];
+        const stats = {
+            likes: postReactions.filter(r => r.type === 'like').length,
+            insights: postReactions.filter(r => r.type === 'insight').length,
+            different: postReactions.filter(r => r.type === 'different').length,
+            risks: postReactions.filter(r => r.type === 'risk').length
+        };
+
+        return {
+            id: p.id,
+            user: {
+                username: p.profiles?.username || 'user',
+                avatar: p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : 'U',
+                date: new Date(p.created_at).toLocaleDateString()
+            },
+            title: p.title,
+            description: p.description,
+            assets: p.assets,
+            stats: stats
+        };
+    }), ...window.MOCK_POSTS];
 
     // Sync Following list from DB if logged in - Merge with Mock follows
     const user = await window.sb_auth.getUser();
