@@ -23,15 +23,12 @@ function CreatePortfolioView() {
 
             <div class="form-group">
                 <label class="form-label">Yatırım Türü</label>
-                <select class="form-control" id="typeSelect" onchange="handleTypeChange(this)">
-                    <option value="" disabled selected>Yatırım Türü Seçiniz</option>
-                    <option value="metal">Kıymetli Madenler</option>
-                    <option value="bist">Borsa İstanbul (BiST)</option>
-                    <option value="crypto">Kripto</option>
-                    <option value="deposit">Mevduat</option>
-                    <option value="us_stock">ABD Hisseleri</option>
-                    <option value="fund">FON</option>
-                </select>
+                <select class="form-control" id="typeSelect" style="display:none" onchange="handleTypeChange(this)"></select>
+                <button type="button" class="form-control" id="typeSelectTrigger" onclick="openTypeModal()" 
+                    style="text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--text-secondary);">
+                    <span>Yatırım Türü Seçiniz</span>
+                    <i class="ph ph-caret-down"></i>
+                </button>
             </div>
 
             <div class="form-group">
@@ -139,6 +136,13 @@ function handleAddAsset() {
         triggerBtn.innerHTML = `<span>Yatırım Aracı Seçiniz</span> <i class="ph ph-magnifying-glass"></i>`;
         triggerBtn.style.color = 'var(--text-secondary)';
         triggerBtn.style.border = '1px solid var(--border-color)';
+    }
+
+    const typeTriggerBtn = document.getElementById('typeSelectTrigger');
+    if (typeTriggerBtn) {
+        typeTriggerBtn.innerHTML = `<span>Yatırım Türü Seçiniz</span> <i class="ph ph-caret-down"></i>`;
+        typeTriggerBtn.style.color = 'var(--text-secondary)';
+        typeTriggerBtn.style.border = '1px solid var(--border-color)';
     }
 }
 
