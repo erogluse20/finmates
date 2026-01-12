@@ -138,7 +138,8 @@ async function renderFeed() {
             title: p.title,
             description: p.description,
             assets: p.assets,
-            stats: stats
+            stats: stats,
+            user_id: p.user_id
         };
     }), ...window.MOCK_POSTS];
 
