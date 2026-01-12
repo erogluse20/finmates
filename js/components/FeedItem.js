@@ -91,11 +91,11 @@ function LinkFeedItem(post) {
                 <p class="card-desc">${post.description}</p>
                 
                 <div class="card-stats">
-                    ${(post.stats && post.stats.likes > 0) ? `<div class="stat-item" style="color:var(--text-secondary)"><i class="ph-fill ph-thumbs-up" style="color:#3b82f6"></i> ${post.stats.likes}</div>` : ''}
-                    ${(post.stats && post.stats.insights > 0) ? `<div class="stat-item" style="color:var(--text-secondary)"><i class="ph-fill ph-lightbulb" style="color:#eab308"></i> ${post.stats.insights}</div>` : ''}
-                    ${(post.stats && post.stats.different > 0) ? `<div class="stat-item" style="color:var(--text-secondary)"><i class="ph-fill ph-binoculars" style="color:#a855f7"></i> ${post.stats.different}</div>` : ''}
-                    ${(post.stats && post.stats.risks > 0) ? `<div class="stat-item" style="color:var(--text-secondary)"><i class="ph-fill ph-warning" style="color:#ef4444"></i> ${post.stats.risks}</div>` : ''}
-                    ${(!post.stats || (post.stats.likes == 0 && post.stats.insights == 0 && post.stats.different == 0 && post.stats.risks == 0)) ? `<div class="stat-item" style="color:var(--text-tertiary); font-size: 0.8rem">Henüz reaksiyon yok</div>` : ''}
+                    ${(post.stats && post.stats.likes > 0) ? `<div class="stat-item stat-count-like" style="color:var(--text-secondary)"><i class="ph-fill ph-thumbs-up" style="color:#3b82f6"></i> <span class="count-val">${post.stats.likes}</span></div>` : ''}
+                    ${(post.stats && post.stats.insights > 0) ? `<div class="stat-item stat-count-insight" style="color:var(--text-secondary)"><i class="ph-fill ph-lightbulb" style="color:#eab308"></i> <span class="count-val">${post.stats.insights}</span></div>` : ''}
+                    ${(post.stats && post.stats.different > 0) ? `<div class="stat-item stat-count-different" style="color:var(--text-secondary)"><i class="ph-fill ph-binoculars" style="color:#a855f7"></i> <span class="count-val">${post.stats.different}</span></div>` : ''}
+                    ${(post.stats && post.stats.risks > 0) ? `<div class="stat-item stat-count-risk" style="color:var(--text-secondary)"><i class="ph-fill ph-warning" style="color:#ef4444"></i> <span class="count-val">${post.stats.risks}</span></div>` : ''}
+                    <div class="no-stats-msg" style="color:var(--text-tertiary); font-size: 0.8rem; display: ${(!post.stats || (post.stats.likes == 0 && post.stats.insights == 0 && post.stats.different == 0 && post.stats.risks == 0)) ? 'block' : 'none'}">Henüz reaksiyon yok</div>
                 </div>
 
                 <div class="chart-section">
@@ -181,20 +181,57 @@ window.toggleReaction = async (id, type) => {
     // Update Button UI Immediately (Optimistic)
     const container = document.querySelector(`.portfolio-card button[onclick*="toggleReaction(${id})"]`)?.closest('.portfolio-card');
     if (container) {
+        // 1. Update Main Button
         const mainBtn = container.querySelector('.like-btn');
         const nextReaction = reactions[id];
 
         const config = {
-            'like': { icon: 'ph-fill ph-thumbs-up', class: 'btn-reacted-like', text: 'Beğendim' },
-            'insight': { icon: 'ph-fill ph-lightbulb', class: 'btn-reacted-insight', text: 'Öğretici' },
-            'different': { icon: 'ph-fill ph-binoculars', class: 'btn-reacted-different', text: 'Farklı' },
-            'risk': { icon: 'ph-fill ph-warning', class: 'btn-reacted-risk', text: 'Riskli' },
+            'like': { icon: 'ph-fill ph-thumbs-up', class: 'btn-reacted-like', text: 'Beğendim', color: '#3b82f6' },
+            'insight': { icon: 'ph-fill ph-lightbulb', class: 'btn-reacted-insight', text: 'Öğretici', color: '#eab308' },
+            'different': { icon: 'ph-fill ph-binoculars', class: 'btn-reacted-different', text: 'Farklı', color: '#a855f7' },
+            'risk': { icon: 'ph-fill ph-warning', class: 'btn-reacted-risk', text: 'Riskli', color: '#ef4444' },
             'default': { icon: 'ph ph-thumbs-up', class: '', text: 'Beğen' }
         };
 
         const state = config[nextReaction] || config['default'];
         mainBtn.innerHTML = `<i class="${state.icon}"></i> ${state.text}`;
         mainBtn.className = `like-btn ${state.class}`;
+
+        // 2. Update Stats Optimistically
+        const statsContainer = container.querySelector('.card-stats');
+        if (statsContainer) {
+            // Decrement previous
+            if (existingType) {
+                const prevStat = statsContainer.querySelector(`.stat-count-${existingType}`);
+                if (prevStat) {
+                    const valSpan = prevStat.querySelector('.count-val');
+                    let count = parseInt(valSpan.innerText) - 1;
+                    if (count <= 0) prevStat.remove();
+                    else valSpan.innerText = count;
+                }
+            }
+
+            // Increment next
+            if (nextReaction) {
+                let nextStat = statsContainer.querySelector(`.stat-count-${nextReaction}`);
+                if (!nextStat) {
+                    // Create element if it doesn't exist
+                    const div = document.createElement('div');
+                    div.className = `stat-item stat-count-${nextReaction}`;
+                    div.style.color = 'var(--text-secondary)';
+                    div.innerHTML = `<i class="${state.icon}" style="color:${state.color}"></i> <span class="count-val">1</span>`;
+                    statsContainer.prepend(div);
+                } else {
+                    const valSpan = nextStat.querySelector('.count-val');
+                    valSpan.innerText = parseInt(valSpan.innerText) + 1;
+                }
+            }
+
+            // Toggle "No reactions" message
+            const noStatsMsg = statsContainer.querySelector('.no-stats-msg');
+            const hasVisibleStats = statsContainer.querySelectorAll('.stat-item').length > 0;
+            if (noStatsMsg) noStatsMsg.style.display = hasVisibleStats ? 'none' : 'block';
+        }
     }
 
     // 3. Background Sync (Database)
