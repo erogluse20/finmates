@@ -54,15 +54,62 @@ async function ProfileView() {
         return portfolios || [];
     };
 
-    // Helper to get liked portfolios (simplified for now)
-    const getLikedPortfolios = () => {
-        const likes = JSON.parse(localStorage.getItem('finmates_likes') || '[]');
-        const mock = window.MOCK_POSTS || [];
-        return mock.filter(p => likes.includes(p.id));
+    // Helper to get liked portfolios
+    const getLikedPortfolios = async () => {
+        const reactions = JSON.parse(localStorage.getItem('finmates_reactions') || '{}');
+        const likedIds = Object.keys(reactions).map(id => parseInt(id)).filter(id => !isNaN(id));
+
+        if (likedIds.length === 0) return [];
+
+        // 1. Fetch real posts that are liked
+        const { data: realPosts } = await sb
+            .from('posts')
+            .select(`
+                *,
+                profiles (
+                    username,
+                    avatar_url
+                )
+            `)
+            .in('id', likedIds);
+
+        // Fetch Reactions for these posts to get counts
+        const { data: allLikedReactions } = await sb
+            .from('reactions')
+            .select('*')
+            .in('post_id', likedIds);
+
+        const realLiked = realPosts?.map(p => {
+            const postReactions = allLikedReactions?.filter(r => r.post_id === p.id) || [];
+            const stats = {
+                likes: postReactions.filter(r => r.type === 'like').length,
+                insights: postReactions.filter(r => r.type === 'insight').length,
+                different: postReactions.filter(r => r.type === 'different').length,
+                risks: postReactions.filter(r => r.type === 'risk').length
+            };
+
+            return {
+                id: p.id,
+                user: {
+                    username: p.profiles?.username || 'user',
+                    avatar: p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : 'U',
+                    date: new Date(p.created_at).toLocaleDateString()
+                },
+                title: p.title,
+                description: p.description,
+                assets: p.assets,
+                stats: stats
+            };
+        }) || [];
+
+        // 2. Fetch mock posts that are liked
+        const mockLiked = (window.MOCK_POSTS || []).filter(p => likedIds.includes(p.id));
+
+        return [...realLiked, ...mockLiked];
     };
 
     const myPortfolios = await getMyPortfolios();
-    const likedPortfolios = getLikedPortfolios();
+    const likedPortfolios = await getLikedPortfolios();
 
     return `
         <div class="profile-header">
