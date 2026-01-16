@@ -5,6 +5,7 @@ let selectedCurrency = 'TL';
 const CURRENCIES = ['TL', 'USD', 'EUR', 'GOLD'];
 
 function CreatePortfolioView() {
+    console.log('CreatePortfolioView Loaded - v3');
     return `
         <div class="page-header">
             <h1 class="page-title">Portföy Oluştur</h1>
@@ -71,6 +72,17 @@ function CreatePortfolioView() {
                 <div class="form-helper">Portföye eklemek istediğiniz varlık türünü veya enstrümanını ekleyin.</div>
             </div>
 
+            <!-- Advanced Mode Toggle -->
+            <div class="form-group" style="margin-bottom: 8px;">
+                <div class="flex items-center justify-between">
+                    <label class="form-label" style="margin:0; font-size: 0.9em; color: var(--text-secondary);">Gelişmiş Giriş (Adet/Fiyat)</label>
+                    <label class="switch">
+                        <input type="checkbox" id="advancedToggle" onchange="toggleAdvancedMode(this.checked)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
             <div class="form-group">
                 <div class="flex items-center justify-between">
                     <label class="form-label" style="margin:0" id="inputLabel">Yatırım Oranı</label>
@@ -84,7 +96,19 @@ function CreatePortfolioView() {
                 
                 <!-- Amount Input (Number) -->
                 <div id="amountInputContainer" style="display:none;">
-                    <input type="number" class="form-control" id="amountInput" placeholder="Tutar giriniz" min="0" step="any">
+                    <input type="number" class="form-control" id="amountInput" placeholder="Toplam Tutar" min="0" step="any">
+                </div>
+                
+                <!-- Advanced Inputs (Quantity & Price) -->
+                <div id="advancedInputs" style="display:none; margin-top: 12px; padding: 12px; background: var(--surface-hover); border-radius: 8px;">
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label" style="font-size: 0.85em;">Adet / Miktar</label>
+                        <input type="number" class="form-control" id="qtyInput" placeholder="0.00" step="any" oninput="calculateTotal()">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.85em;">Birim Maliyet / Fiyat</label>
+                        <input type="number" class="form-control" id="priceInput" placeholder="0.00" step="any" oninput="calculateTotal()">
+                    </div>
                 </div>
 
                 <div class="form-helper" id="inputHelper">Bu yatırım aracının portföy içindeki yüzdesini belirtin.</div>
@@ -163,6 +187,29 @@ function setCurrency(curr) {
     renderAssetList(); // Update symbols in list
 }
 
+function toggleAdvancedMode(isChecked) {
+    const advContainer = document.getElementById('advancedInputs');
+    if (isChecked) {
+        advContainer.style.display = 'block';
+    } else {
+        advContainer.style.display = 'none';
+        // Clear inputs when hiding? Optional. Let's keep them for now.
+    }
+}
+
+function calculateTotal() {
+    // Only works effectively in AMOUNT mode
+    if (creationMode !== 'AMOUNT') return;
+
+    const qty = parseFloat(document.getElementById('qtyInput').value) || 0;
+    const price = parseFloat(document.getElementById('priceInput').value) || 0;
+
+    if (qty > 0 && price > 0) {
+        const total = qty * price;
+        document.getElementById('amountInput').value = total.toFixed(2);
+    }
+}
+
 // Logic to populate second dropdown
 function handleTypeChange(selectElem) {
     const type = selectElem.value;
@@ -222,6 +269,14 @@ function handleAddAsset() {
         type: typeSelect.value
     };
 
+    // Advanced Data
+    if (document.getElementById('advancedToggle')?.checked) {
+        const qty = parseFloat(document.getElementById('qtyInput').value);
+        const price = parseFloat(document.getElementById('priceInput').value);
+        if (qty) newItem.quantity = qty;
+        if (price) newItem.cost = price;
+    }
+
     if (creationMode === 'PERCENT') {
         newItem.percent = val;
     } else {
@@ -239,6 +294,10 @@ function handleAddAsset() {
     } else {
         document.getElementById('amountInput').value = '';
     }
+
+    // Clear Advanced Inputs
+    document.getElementById('qtyInput').value = '';
+    document.getElementById('priceInput').value = '';
 
     // Reset Dropdowns
     typeSelect.value = "";
@@ -318,10 +377,15 @@ function renderAssetList() {
             valueDisplay = `%${asset.percent}`;
         } else {
             // Show Amount + Currency
-            valueDisplay = `${asset.amount.toLocaleString()} ${selectedCurrency}`;
+            valueDisplay = `
+                <div style="text-align:right">
+                    <div>${asset.amount.toLocaleString()} ${selectedCurrency}</div>
+                    ${asset.quantity ? `<div style="font-size:0.75em; color:var(--text-secondary);">${asset.quantity} ad. ${asset.cost ? `@ ${asset.cost}` : ''}</div>` : ''}
+                </div>
+            `;
             // Optional: Show approximate percentage
-            const approxPercent = totalAmount > 0 ? Math.round((asset.amount / totalAmount) * 100) : 0;
-            valueDisplay += ` <span style="font-size:0.8em; color:var(--text-secondary);">(%${approxPercent})</span>`;
+            // const approxPercent = totalAmount > 0 ? Math.round((asset.amount / totalAmount) * 100) : 0;
+            // valueDisplay += ` <span style="font-size:0.8em; color:var(--text-secondary);">(%${approxPercent})</span>`;
         }
 
         item.innerHTML = `
