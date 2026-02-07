@@ -327,7 +327,7 @@ async function handleShare() {
     let result;
 
     // DEV MODE HANDLING
-    if (typeof DEV_MODE !== 'undefined' && DEV_MODE) {
+    if (typeof window.DEV_MODE !== 'undefined' && window.DEV_MODE) {
         if (isUpdate) {
             const mockIdx = window.MOCK_POSTS.findIndex(p => p.id === window.EDIT_PORTFOLIO_ID);
             if (mockIdx > -1) {
@@ -347,17 +347,21 @@ async function handleShare() {
     } else {
         // REAL SUPABASE HANDLING
         if (isUpdate) {
-            result = await sb.from('posts').update(postPayload).eq('id', window.EDIT_PORTFOLIO_ID);
+            console.log('Updating Supabase post:', window.EDIT_PORTFOLIO_ID);
+            result = await window.sb.from('posts').update(postPayload).eq('id', window.EDIT_PORTFOLIO_ID).select();
         } else {
-            result = await sb.from('posts').insert(postPayload);
+            console.log('Inserting new Supabase post');
+            result = await window.sb.from('posts').insert(postPayload).select();
         }
     }
 
     if (result.error) {
-        console.error('Save error:', result.error);
+        console.error('Database Error:', result.error);
         alert('Kaydedilirken bir hata oluştu: ' + result.error.message);
         return;
     }
+
+    console.log('Database success:', result.data);
 
     // Clear Edit ID
     window.EDIT_PORTFOLIO_ID = null;
@@ -385,7 +389,7 @@ function initCreatePortfolio() {
         let post = null;
 
         // 1. Check Mock Data (DEV_MODE)
-        if (typeof DEV_MODE !== 'undefined' && DEV_MODE && window.MOCK_POSTS) {
+        if (typeof window.DEV_MODE !== 'undefined' && window.DEV_MODE && window.MOCK_POSTS) {
             post = window.MOCK_POSTS.find(p => p.id === window.EDIT_PORTFOLIO_ID);
         }
 
@@ -410,7 +414,7 @@ function initCreatePortfolio() {
             updateSliderState();
         } else {
             // Fallback: Fetch from Supabase
-            sb.from('posts').select('*').eq('id', window.EDIT_PORTFOLIO_ID).single().then(({ data, error }) => {
+            window.sb.from('posts').select('*').eq('id', window.EDIT_PORTFOLIO_ID).single().then(({ data, error }) => {
                 if (data && !error) {
                     document.querySelector('.page-title').textContent = 'Portföy Düzenle';
                     document.querySelector('input[placeholder*="Portföyünüzü tanımlayan"]').value = data.title;

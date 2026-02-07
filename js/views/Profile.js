@@ -4,8 +4,8 @@ window.activeProfileTab = window.activeProfileTab || 'my_portfolios';
 async function ProfileView() {
     let sbUser = window.currentUser;
 
-    // In DEV_MODE, use mock user
-    if (typeof DEV_MODE !== 'undefined' && !DEV_MODE) {
+    // In production, use real user
+    if (typeof window.DEV_MODE !== 'undefined' && !window.DEV_MODE) {
         sbUser = await sb_auth.getUser();
     }
 
@@ -20,7 +20,7 @@ async function ProfileView() {
     };
 
     // Try to fetch real profile info if available
-    if (typeof DEV_MODE === 'undefined' || !DEV_MODE) {
+    if (typeof window.DEV_MODE === 'undefined' || !window.DEV_MODE) {
         const { data: dbProfile } = await sb
             .from('profiles')
             .select('*')
@@ -96,7 +96,7 @@ async function ProfileView() {
         // Let's assume MOCK_POSTS have varied IDs or we just show a subset. 
         // For real app:
         const myId = sbUser?.id;
-        const myPosts = allPosts.filter(p => p.user_id === myId || (typeof DEV_MODE !== 'undefined' && DEV_MODE)); // Show all in dev mode for demo if IDs don't match
+        const myPosts = allPosts.filter(p => p.user_id === myId || (typeof window.DEV_MODE !== 'undefined' && window.DEV_MODE)); // Show all in dev mode for demo if IDs don't match
 
         if (myPosts.length > 0) {
             contentHTML = myPosts.map(post => typeof LinkFeedItem === 'function' ? LinkFeedItem(post) : '').join('');
