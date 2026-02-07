@@ -1,0 +1,148 @@
+/* Asset Card Styling for Create Portfolio */
+.asset-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    transition: all 0.2s;
+}
+
+.asset-card:hover {
+    border-color: var(--color-brand);
+    background: var(--bg-surface);
+}
+
+.asset-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+}
+
+.asset-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.asset-card-info {
+    flex: 1;
+    margin-left: var(--spacing-md);
+}
+
+.asset-card-name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.asset-card-type {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.asset-card-value {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-brand);
+    text-align: right;
+}
+
+.asset-card-slider {
+    margin-top: var(--spacing-sm);
+}
+
+/* Mode Toggle Buttons */
+.mode-toggle-container {
+    background: var(--bg-surface);
+    padding: 4px;
+    border-radius: 8px;
+    display: flex;
+    gap: 4px;
+    margin-bottom: var(--spacing-md);
+}
+
+.mode-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mode-btn.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mode-btn:hover:not(.active) {
+    color: var(--text-primary);
+}
+
+/* Save Button (Top Right) */
+.save-btn {
+    background: transparent;
+    border: 1.5px solid var(--color-brand);
+    color: var(--color-brand);
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.save-btn:hover {
+    background: var(--color-brand);
+    color: var(--bg-body);
+}
+
+/* Allocation Indicator */
+.allocation-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+    background: var(--bg-surface);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+}
+
+.allocation-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.allocation-value {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--color-brand);
+}
+
+.allocation-value.complete {
+    color: var(--color-brand);
+}
+
+.allocation-value.incomplete {
+    color: var(--text-tertiary);
+}

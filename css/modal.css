@@ -5,12 +5,12 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(17, 0, 94, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 1000;
     display: none;
-    /* Hidden by default */
     align-items: flex-end;
-    /* Bottom sheet on mobile */
 }
 
 .modal-overlay.open {
@@ -24,12 +24,25 @@
     max-width: 480px;
     margin: 0 auto;
     border-radius: 20px 20px 0 0;
-    height: 80vh;
-    /* Takes up 80% screen height */
+    height: 85vh;
     display: flex;
     flex-direction: column;
-    animation: slideUp 0.3s ease-out;
-    border: 1px solid var(--border-color);
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-top: 1px solid var(--border-color);
+    position: relative;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-content::before {
+    content: "";
+    width: 36px;
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 10px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 @keyframes slideUp {
@@ -43,43 +56,60 @@
 }
 
 .modal-header {
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--border-color);
+    padding: 24px 20px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .modal-title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .close-modal-btn {
-    background: none;
-    border: none;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
     color: var(--text-secondary);
-    font-size: 24px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-modal-btn:hover {
+    background: var(--border-subtle);
+    color: var(--text-primary);
 }
 
 /* Search Box */
 .modal-search-box {
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--border-color);
+    padding: 0 20px 16px;
 }
 
 .search-input-wrapper {
     position: relative;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
-    padding: 0 12px;
+    padding: 0 14px;
+    border: 1px solid var(--border-subtle);
+    transition: all 0.2s ease;
+}
+
+.search-input-wrapper:focus-within {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(145, 145, 232, 0.1);
 }
 
 .search-icon {
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
     font-size: 18px;
 }
 
@@ -87,57 +117,65 @@
     width: 100%;
     background: transparent;
     border: none;
-    padding: 12px;
+    padding: 11px;
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: 15px;
     outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--text-tertiary);
 }
 
 /* Asset List */
 .modal-body {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-md);
+    padding: 10px 20px 40px;
 }
 
 .asset-select-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.asset-select-item:hover {
+    background: var(--bg-elevated);
 }
 
 .asset-select-item:active {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--color-bg-tint);
 }
 
 .asset-logo-img {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    object-fit: contain;
-    /* or cover */
-    background: #fff;
-    /* Ensure transparent logos show up */
+    background: var(--bg-elevated);
+    padding: 2px;
 }
 
 .asset-info-col {
     display: flex;
     flex-direction: column;
+    gap: 2px;
 }
 
 .asset-symbol-text {
     font-weight: 600;
-    font-size: 14px;
+    font-size: 15px;
     color: var(--text-primary);
 }
 
 .asset-name-text {
     font-size: 12px;
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
 }
 
 /* Investment Type Grid */
@@ -145,42 +183,45 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: var(--spacing-md);
+    padding: 10px 0;
 }
 
 .type-item {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.type-item:hover,
+.type-item:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-color);
+}
+
 .type-item:active {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--color-brand);
-    transform: scale(0.98);
+    background: var(--color-bg-tint);
 }
 
 .type-icon-wrapper {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 26px;
+    background: var(--bg-elevated);
 }
 
 .type-label {
     flex: 1;
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
     color: var(--text-primary);
 }
 

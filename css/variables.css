@@ -1,31 +1,53 @@
 :root {
-    /* Colors extracted/inspired by the uploaded image */
-    --bg-body: #121418;
-    --bg-card: #1b2028;
-    --bg-nav: #1b2028;
-    
-    --text-primary: #ffffff;
-    --text-secondary: #a0a5b1;
-    --text-accent: #3b82f6; /* Blue for links/accents */
-    
-    --color-brand: #3b82f6;
-    --color-danger: #ef4444;
-    --color-success: #10b981;
-    
-    --border-color: #2d333f;
-    
-    /* Spacing */
+    /* Dark Blue Theme - Based on New Mockups */
+    --bg-body: #0a1628;
+    --bg-card: #0f1e33;
+    --bg-nav: #0f1e33;
+    --bg-surface: #152842;
+    --bg-elevated: #1a3350;
+
+    --text-primary: #e8f1f8;
+    --text-secondary: #8fa3bf;
+    --text-tertiary: #5a6b85;
+
+    --color-brand: #00d9ff;
+    --color-brand-glow: rgba(0, 217, 255, 0.3);
+    --color-primary: #4a9eff;
+    --color-accent: #00d9ff;
+
+    --color-danger: #ff4444;
+    --color-success: #00d9ff;
+    --color-warning: #ffb800;
+    --color-info: #4a9eff;
+
+    /* Reaction Colors */
+    --reaction-like: #4a9eff;
+    --reaction-insight: #ffb800;
+    --reaction-different: #00d9ff;
+    --reaction-risk: #ff8c42;
+
+    /* Border */
+    --border-color: #1a3350;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-blur: blur(20px);
+
+    /* Spacing & Radii */
     --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 24px;
-    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+
     /* Typography */
-    --font-family: 'Inter', sans-serif;
-    --font-size-sm: 12px;
-    --font-size-base: 14px;
-    --font-size-lg: 16px;
-    --font-size-xl: 18px;
+    --font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 13px;
+    --font-size-base: 15px;
+    --font-size-lg: 17px;
+    --font-size-xl: 22px;
 }
 
 body {
@@ -45,10 +67,16 @@ body {
 ::-webkit-scrollbar {
     width: 6px;
 }
+
 ::-webkit-scrollbar-track {
     background: var(--bg-body);
 }
+
 ::-webkit-scrollbar-thumb {
-    background: var(--border-color);
+    background: var(--bg-elevated);
     border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-brand);
 }

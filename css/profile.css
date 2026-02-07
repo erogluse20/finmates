@@ -1,52 +1,62 @@
 /* Profile Page Styles */
 .profile-header {
-    background-color: var(--surface-card);
+    background: var(--bg-card);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-md);
+    margin: var(--spacing-md);
     display: flex;
+    flex-direction: column;
     align-items: center;
+    text-align: center;
     gap: var(--spacing-md);
-    border: 1px solid var(--border-light);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
 }
 
 .profile-avatar {
     width: 80px;
     height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    border-radius: var(--radius-lg);
+    background: var(--color-accent);
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #fff;
 }
 
 .profile-avatar i {
-    font-size: 40px;
-    color: white;
+    font-size: 42px;
 }
 
 .profile-info h1 {
-    font-size: var(--font-lg);
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 600;
     margin-bottom: 4px;
     color: var(--text-primary);
 }
 
 .profile-handle {
-    color: var(--text-secondary);
-    font-size: var(--font-sm);
-    margin-bottom: var(--spacing-sm);
+    color: var(--color-accent);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
 
 .profile-bio {
     color: var(--text-secondary);
-    font-size: var(--font-sm);
+    font-size: 14px;
+    line-height: 1.5;
     margin-bottom: var(--spacing-md);
+    max-width: 300px;
 }
 
 .profile-stats {
     display: flex;
-    gap: var(--spacing-lg);
+    gap: 28px;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-subtle);
+    width: 100%;
+    justify-content: center;
 }
 
 .stat-item {
@@ -56,57 +66,50 @@
 }
 
 .stat-value {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-primary);
-    font-size: var(--font-md);
+    font-size: 18px;
 }
 
 .stat-label {
-    color: var(--text-secondary);
-    font-size: var(--font-xs);
+    color: var(--text-tertiary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
 }
 
 .profile-tabs {
     display: flex;
-    background-color: var(--surface-card);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    border-bottom: 1px solid var(--border-light);
-    margin-bottom: 0;
+    margin: 0 var(--spacing-md);
+    background: var(--bg-card);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
 }
 
 .profile-tab {
     flex: 1;
     text-align: center;
-    padding: var(--spacing-md);
+    padding: 8px;
     cursor: pointer;
-    color: var(--text-secondary);
-    font-weight: 500;
-    position: relative;
-    background: none;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
     border: none;
-    font-size: var(--font-sm);
+    background: transparent;
+    font-size: 13px;
+    transition: all 0.2s ease;
 }
 
 .profile-tab.active {
-    color: var(--primary);
-    font-weight: 600;
-}
-
-.profile-tab.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: var(--primary);
+    color: var(--color-brand);
+    background: var(--color-bg-tint);
 }
 
 .profile-content {
-    background-color: var(--surface-card);
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     padding: var(--spacing-md);
-    min-height: 200px;
+    min-height: 300px;
 }
 
 .empty-state {
@@ -114,18 +117,20 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-xl);
+    padding: 60px 20px;
     text-align: center;
-    color: var(--text-secondary);
 }
 
 .empty-state-icon {
-    font-size: 48px;
-    margin-bottom: var(--spacing-md);
-    opacity: 0.5;
+    font-size: 56px;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-tertiary);
+    opacity: 0.3;
 }
 
 .empty-state-text {
-    margin-bottom: var(--spacing-md);
-    font-size: var(--font-md);
+    margin-bottom: var(--spacing-sm);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
 }

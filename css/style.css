@@ -1,15 +1,19 @@
-/* Global Utilities */
 .container {
     max-width: 480px;
-    /* Mobile width constraint */
     margin: 0 auto;
     min-height: 100vh;
     background-color: var(--bg-body);
-    padding-bottom: 70px;
-    /* Space for bottom nav */
+    padding-bottom: 90px;
     position: relative;
-    border-left: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
+    overflow-x: hidden;
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
 }
 
 .text-muted {
@@ -32,36 +36,6 @@
     gap: var(--spacing-sm);
 }
 
-/* Typography Overrides */
-h1,
-h2,
-h3,
-h4,
-p {
-    margin: 0;
-}
-
-.btn {
-    border: none;
-    border-radius: 4px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    transition: opacity 0.2s;
-}
-
-.btn:active {
-    opacity: 0.8;
-}
-
-.btn-outline {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-}
-
-.btn-ghost {
-    background: transparent;
-    color: var(--text-secondary);
+.gap-md {
+    gap: var(--spacing-md);
 }
