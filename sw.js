@@ -1,4 +1,4 @@
-const CACHE_NAME = 'finmates-v4';
+const CACHE_NAME = 'finmates-v9';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
