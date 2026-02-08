@@ -103,7 +103,7 @@ async function ProfileView() {
             postsWithMyId: allPosts.filter(p => p.user_id === myId).length
         });
 
-        const myPosts = allPosts.filter(p => p.user_id === myId || (typeof window.DEV_MODE !== 'undefined' && window.window.DEV_MODE)); // Show all in dev mode for demo if IDs don't match
+        const myPosts = allPosts.filter(p => p.user_id === myId || (typeof window.DEV_MODE !== 'undefined' && window.DEV_MODE)); // Show all in dev mode for demo if IDs don't match
 
         if (myPosts.length > 0) {
             contentHTML = myPosts.map(post => typeof LinkFeedItem === 'function' ? LinkFeedItem(post) : '').join('');
