@@ -105,13 +105,15 @@ async function renderFeed() {
     `;
 
     let allPosts = [];
+    let allReactions = []; // Declare allReactions here
 
-    if (DEV_MODE) {
+    // Data fetching logic
+    if (typeof window.DEV_MODE !== 'undefined' && window.DEV_MODE) {
         // In development, use only mock data
         allPosts = [...window.MOCK_POSTS];
     } else {
         // Fetch from Supabase
-        const { data: posts, error } = await sb
+        const { data: dbPosts, error: postsError } = await sb
             .from('posts')
             .select(`
                 *,
@@ -123,29 +125,31 @@ async function renderFeed() {
             `)
             .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Supabase fetch error:', error);
-            // Fallback to mock data on error for demo purposes
-            allPosts = [...window.MOCK_POSTS];
+        if (postsError) {
+            console.error('Error fetching feed:', postsError);
+            allPosts = [...window.MOCK_POSTS]; // Fallback to mock on error
         } else {
             // Fetch Reactions for all these posts to get counts
-            const postIds = posts.map(p => p.id);
-            const { data: allReactions } = await sb
+            const postIds = (dbPosts || []).map(p => p.id);
+            const { data: allReactions, error: reactionsError } = await sb
                 .from('reactions')
                 .select('*')
                 .in('post_id', postIds);
 
-            // Sync user's own reactions to localStorage for instant UI
+            if (reactionsError) console.warn('Error fetching reactions:', reactionsError);
+
+            // Fetch User's own reactions to sync localStorage
             if (window.currentUser) {
                 const myReactions = {};
-                allReactions?.filter(r => r.user_id === window.currentUser.id)
+                (allReactions || [])
+                    .filter(r => r.user_id === window.currentUser.id)
                     .forEach(r => myReactions[r.post_id] = r.type);
                 localStorage.setItem('finmates_reactions', JSON.stringify(myReactions));
             }
 
-            // Combine with MOCK for now and map stats
-            const dbPosts = posts.map(p => {
-                const postReactions = allReactions?.filter(r => r.post_id === p.id) || [];
+            // Map DB posts to UI structure with real stats
+            allPosts = (dbPosts || []).map(p => {
+                const postReactions = (allReactions || []).filter(r => r.post_id === p.id);
                 const stats = {
                     likes: postReactions.filter(r => r.type === 'like').length,
                     insights: postReactions.filter(r => r.type === 'insight').length,
@@ -167,57 +171,57 @@ async function renderFeed() {
                     user_id: p.user_id
                 };
             });
-            allPosts = [...dbPosts, ...window.MOCK_POSTS];
         }
     }
+}
 
-    // Check active tab state (default to 'featured')
-    const activeFeedTab = window.activeFeedTab || 'featured';
+// Check active tab state (default to 'featured')
+const activeFeedTab = window.activeFeedTab || 'featured';
 
-    let contentHTML = '';
+let contentHTML = '';
 
-    // Helper to render a post safely
-    const renderPost = (post) => {
-        // Use LinkFeedItem which is the actual component name in FeedItem.js
-        if (typeof LinkFeedItem === 'function') return LinkFeedItem(post);
+// Helper to render a post safely
+const renderPost = (post) => {
+    // Use LinkFeedItem which is the actual component name in FeedItem.js
+    if (typeof LinkFeedItem === 'function') return LinkFeedItem(post);
 
-        // Fallback if component is missing
-        return `
+    // Fallback if component is missing
+    return `
             <div class="card" style="margin-bottom:20px; padding:16px;">
                 <div style="font-weight:bold; margin-bottom:8px;">${post.title}</div>
                 <div>${post.description}</div>
             </div>
         `;
-    };
+};
 
-    if (activeFeedTab === 'featured') {
-        contentHTML = allPosts.map(post => renderPost(post)).join('');
+if (activeFeedTab === 'featured') {
+    contentHTML = allPosts.map(post => renderPost(post)).join('');
+} else {
+    // Following Tab
+    const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
+    const followingPosts = allPosts.filter(post => followList.includes(post.user.username));
+
+    if (followingPosts.length > 0) {
+        contentHTML = followingPosts.map(post => renderPost(post)).join('');
     } else {
-        // Following Tab
-        const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
-        const followingPosts = allPosts.filter(post => followList.includes(post.user.username));
-
-        if (followingPosts.length > 0) {
-            contentHTML = followingPosts.map(post => renderPost(post)).join('');
-        } else {
-            contentHTML = `
+        contentHTML = `
                 <div class="empty-state">
                     <i class="ph ph-users empty-state-icon"></i>
                     <div class="empty-state-text">Henüz kimseyi takip etmiyorsunuz.</div>
                     <div style="color: var(--text-secondary); font-size: var(--font-sm);">Öne çıkanlardan ilginizi çeken portföyleri takip edebilirsiniz.</div>
                 </div>
             `;
-        }
     }
+}
 
-    if (!window.switchFeedTab) {
-        window.switchFeedTab = (tab) => {
-            window.activeFeedTab = tab;
-            navigate('/');
-        };
-    }
+if (!window.switchFeedTab) {
+    window.switchFeedTab = (tab) => {
+        window.activeFeedTab = tab;
+        navigate('/');
+    };
+}
 
-    const feedTemplate = `
+const feedTemplate = `
         <div class="feed-header" style="position: sticky; top: 0; background: var(--bg-body); z-index: 90; padding: 10px 16px 0;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -241,7 +245,7 @@ async function renderFeed() {
         <div style="height: 20px;"></div>
     `;
 
-    document.getElementById('main-content').innerHTML = feedTemplate;
+document.getElementById('main-content').innerHTML = feedTemplate;
 }
 
 function renderCreate() {
