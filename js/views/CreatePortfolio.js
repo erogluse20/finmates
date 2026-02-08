@@ -361,7 +361,14 @@ async function handleShare() {
         return;
     }
 
-    console.log('Database success:', result.data);
+    console.log('Database operation result:', result);
+
+    if (isUpdate && (!result.data || result.data.length === 0)) {
+        console.warn('Update successful in Supabase but 0 rows were affected. This usually means the ID was not found or RLS policy blocked the update.');
+        alert('Uyarı: Güncelleme işlemi veri tabanında bir değişikliğe yol açmadı. Lütfen sayfayı yenileyip tekrar deneyin.');
+    } else {
+        console.log('Database success:', result.data);
+    }
 
     // Clear Edit ID
     window.EDIT_PORTFOLIO_ID = null;
