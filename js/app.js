@@ -173,55 +173,53 @@ async function renderFeed() {
             });
         }
     }
-}
+    // Check active tab state (default to 'featured')
+    const activeFeedTab = window.activeFeedTab || 'featured';
 
-// Check active tab state (default to 'featured')
-const activeFeedTab = window.activeFeedTab || 'featured';
+    let contentHTML = '';
 
-let contentHTML = '';
+    // Helper to render a post safely
+    const renderPost = (post) => {
+        // Use LinkFeedItem which is the actual component name in FeedItem.js
+        if (typeof LinkFeedItem === 'function') return LinkFeedItem(post);
 
-// Helper to render a post safely
-const renderPost = (post) => {
-    // Use LinkFeedItem which is the actual component name in FeedItem.js
-    if (typeof LinkFeedItem === 'function') return LinkFeedItem(post);
-
-    // Fallback if component is missing
-    return `
+        // Fallback if component is missing
+        return `
             <div class="card" style="margin-bottom:20px; padding:16px;">
                 <div style="font-weight:bold; margin-bottom:8px;">${post.title}</div>
                 <div>${post.description}</div>
             </div>
         `;
-};
+    };
 
-if (activeFeedTab === 'featured') {
-    contentHTML = allPosts.map(post => renderPost(post)).join('');
-} else {
-    // Following Tab
-    const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
-    const followingPosts = allPosts.filter(post => followList.includes(post.user.username));
-
-    if (followingPosts.length > 0) {
-        contentHTML = followingPosts.map(post => renderPost(post)).join('');
+    if (activeFeedTab === 'featured') {
+        contentHTML = allPosts.map(post => renderPost(post)).join('');
     } else {
-        contentHTML = `
+        // Following Tab
+        const followList = JSON.parse(localStorage.getItem('finmates_following') || '[]');
+        const followingPosts = allPosts.filter(post => followList.includes(post.user.username));
+
+        if (followingPosts.length > 0) {
+            contentHTML = followingPosts.map(post => renderPost(post)).join('');
+        } else {
+            contentHTML = `
                 <div class="empty-state">
                     <i class="ph ph-users empty-state-icon"></i>
                     <div class="empty-state-text">Henüz kimseyi takip etmiyorsunuz.</div>
                     <div style="color: var(--text-secondary); font-size: var(--font-sm);">Öne çıkanlardan ilginizi çeken portföyleri takip edebilirsiniz.</div>
                 </div>
             `;
+        }
     }
-}
 
-if (!window.switchFeedTab) {
-    window.switchFeedTab = (tab) => {
-        window.activeFeedTab = tab;
-        navigate('/');
-    };
-}
+    if (!window.switchFeedTab) {
+        window.switchFeedTab = (tab) => {
+            window.activeFeedTab = tab;
+            navigate('/');
+        };
+    }
 
-const feedTemplate = `
+    const feedTemplate = `
         <div class="feed-header" style="position: sticky; top: 0; background: var(--bg-body); z-index: 90; padding: 10px 16px 0;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -245,7 +243,7 @@ const feedTemplate = `
         <div style="height: 20px;"></div>
     `;
 
-document.getElementById('main-content').innerHTML = feedTemplate;
+    document.getElementById('main-content').innerHTML = feedTemplate;
 }
 
 function renderCreate() {
