@@ -15,7 +15,7 @@ function CreatePortfolioView() {
         <form onsubmit="return false;">
             <div class="form-group">
                 <label class="form-label">Portföy Adı</label>
-                <input type="text" class="form-control" placeholder="Portföyünüzü tanımlayan kısa bir isim yazın.">
+                <input type="text" class="form-control" placeholder="Portföyünüzü tanımlayan kısa bir isim yazın." ${window.EDIT_PORTFOLIO_ID ? 'disabled style="background: var(--bg-body); cursor: not-allowed; opacity: 0.7;"' : ''}>
             </div>
 
             <div class="form-group">
@@ -42,9 +42,9 @@ function CreatePortfolioView() {
                 <select class="form-control" id="assetSelect" style="display:none"></select>
                 
                 <!-- Custom Trigger Button -->
-                <button type="button" class="form-control" id="assetSelectTrigger" onclick="openAssetModal()" 
-                    style="text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--text-secondary);">
-                    <span>Yatırım Aracı Seçiniz</span>
+                <button type="button" class="form-control" id="assetSelectTrigger" onclick="openAssetModal()" disabled
+                    style="text-align: left; display: flex; justify-content: space-between; align-items: center; cursor: not-allowed; color: var(--text-tertiary); opacity: 0.6;">
+                    <span>Önce Yatırım Türü Seçiniz</span>
                     <i class="ph ph-magnifying-glass"></i>
                 </button>
                 
@@ -90,11 +90,23 @@ function handleTypeChange(selectElem) {
     // Reset internal select
     assetSelect.value = "";
 
-    // Reset Trigger UI
+    // Enable/Disable Asset Trigger
     if (triggerBtn) {
-        triggerBtn.innerHTML = `<span>Yatırım Aracı Seçiniz (${type ? type.toUpperCase() : ''})</span> <i class="ph ph-magnifying-glass"></i>`;
-        triggerBtn.style.color = 'var(--text-secondary)';
-        triggerBtn.style.border = '1px solid var(--border-color)';
+        if (type) {
+            triggerBtn.disabled = false;
+            triggerBtn.style.cursor = 'pointer';
+            triggerBtn.style.opacity = '1';
+            triggerBtn.style.color = 'var(--text-secondary)';
+            triggerBtn.style.borderColor = 'var(--color-brand)';
+            triggerBtn.innerHTML = `<span>Yatırım Aracı Seçiniz (${type.toUpperCase()})</span> <i class="ph ph-magnifying-glass"></i>`;
+        } else {
+            triggerBtn.disabled = true;
+            triggerBtn.style.cursor = 'not-allowed';
+            triggerBtn.style.opacity = '0.6';
+            triggerBtn.style.color = 'var(--text-tertiary)';
+            triggerBtn.style.borderColor = 'var(--border-color)';
+            triggerBtn.innerHTML = `<span>Önce Yatırım Türü Seçiniz</span> <i class="ph ph-magnifying-glass"></i>`;
+        }
     }
 }
 
@@ -143,9 +155,12 @@ function handleAddAsset() {
 
     const triggerBtn = document.getElementById('assetSelectTrigger');
     if (triggerBtn) {
-        triggerBtn.innerHTML = `<span>Yatırım Aracı Seçiniz</span> <i class="ph ph-magnifying-glass"></i>`;
-        triggerBtn.style.color = 'var(--text-secondary)';
-        triggerBtn.style.border = '1px solid var(--border-color)';
+        triggerBtn.disabled = true;
+        triggerBtn.style.cursor = 'not-allowed';
+        triggerBtn.style.opacity = '0.6';
+        triggerBtn.style.color = 'var(--text-tertiary)';
+        triggerBtn.style.borderColor = 'var(--border-color)';
+        triggerBtn.innerHTML = `<span>Önce Yatırım Türü Seçiniz</span> <i class="ph ph-magnifying-glass"></i>`;
     }
 
     const typeTriggerBtn = document.getElementById('typeSelectTrigger');
