@@ -3,13 +3,19 @@ function LinkFeedItem(post) {
     let gradientString = '';
     let currentPercent = 0;
 
+    // VIBRANT COLOR PALETTE
+    const PALETTE = ['#06d6a0', '#3b82f6', '#eab308', '#ef4444', '#8b5cf6', '#f97316', '#06b6d4', '#ec4899'];
+
     post.assets.forEach((asset, index) => {
         const start = currentPercent;
         currentPercent += asset.percent;
         const end = currentPercent;
 
-        // Use asset color or fallback
-        const color = asset.color || 'var(--color-brand)';
+        // Assign color from palette if not present
+        if (!asset.color) {
+            asset.color = PALETTE[index % PALETTE.length];
+        }
+        const color = asset.color;
 
         gradientString += `${color} ${start}% ${end}%${index < post.assets.length - 1 ? ', ' : ''}`;
     });
