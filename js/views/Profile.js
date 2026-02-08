@@ -50,7 +50,7 @@ async function ProfileView() {
 
     // 1. Fetch All Posts (Mock or Real) to filter
     let allPosts = [];
-    if (typeof DEV_MODE !== 'undefined' && DEV_MODE) {
+    if (typeof window.DEV_MODE !== 'undefined' && window.DEV_MODE) {
         allPosts = [...(window.MOCK_POSTS || [])];
     } else {
         // Real Fetch
@@ -96,7 +96,14 @@ async function ProfileView() {
         // Let's assume MOCK_POSTS have varied IDs or we just show a subset. 
         // For real app:
         const myId = sbUser?.id;
-        const myPosts = allPosts.filter(p => p.user_id === myId || (typeof window.DEV_MODE !== 'undefined' && window.DEV_MODE)); // Show all in dev mode for demo if IDs don't match
+        console.log('Profile Filtering Diagnostics:', {
+            activeTab: activeTab,
+            myId: myId,
+            allPostsCount: allPosts.length,
+            postsWithMyId: allPosts.filter(p => p.user_id === myId).length
+        });
+
+        const myPosts = allPosts.filter(p => p.user_id === myId || (typeof window.DEV_MODE !== 'undefined' && window.window.DEV_MODE)); // Show all in dev mode for demo if IDs don't match
 
         if (myPosts.length > 0) {
             contentHTML = myPosts.map(post => typeof LinkFeedItem === 'function' ? LinkFeedItem(post) : '').join('');
