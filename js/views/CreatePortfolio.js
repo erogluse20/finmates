@@ -1,5 +1,6 @@
 // State for the create form
 let portfolioAssets = [];
+const CHART_PALETTE = ['#06d6a0', '#3b82f6', '#eab308', '#ef4444', '#8b5cf6', '#f97316', '#06b6d4', '#ec4899'];
 
 function CreatePortfolioView() {
     console.log('CreatePortfolioView Loaded - Simplified');
@@ -124,7 +125,8 @@ function handleAddAsset() {
     const newItem = {
         symbol: assetName,
         type: typeSelect.value,
-        percent: val
+        percent: val,
+        color: CHART_PALETTE[portfolioAssets.length % CHART_PALETTE.length]
     };
 
     portfolioAssets.push(newItem);
@@ -216,7 +218,7 @@ function renderAssetList() {
                 <strong style="color: var(--text-primary); margin-left: 8px;">${asset.symbol}</strong>
             </div>
             <div class="flex items-center gap-sm">
-                <span style="font-weight: 600; color: var(--color-brand);">${valueDisplay}</span>
+                <span style="font-weight: 600; color: ${asset.color || 'var(--color-brand)'};">${valueDisplay}</span>
                 <button onclick="editAsset(${index})" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; margin-right: 8px; padding: 4px;">
                     <i class="ph-fill ph-pencil-simple" style="font-size: 18px;"></i>
                 </button>
