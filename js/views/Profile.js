@@ -67,22 +67,46 @@ async function ProfileView() {
             .order('created_at', { ascending: false });
 
         if (!error && posts) {
-            // For stats, we would ideally fetch reactions too, but for now specific stats might be missing in profile view or we can do a light fetch
-            // Let's rely on basic data or assume stats are attached if we used the same query as feed. 
-            // To keep it simple and consistent with FeedItem, we map them structure-wise.
-            allPosts = posts.map(p => ({
-                id: p.id,
-                user: {
-                    username: p.profiles?.username || 'user',
-                    avatar: p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : 'U',
-                    date: new Date(p.created_at).toLocaleDateString()
-                },
-                title: p.title,
-                description: p.description,
-                assets: p.assets,
-                user_id: p.user_id,
-                stats: { likes: 0, insights: 0, different: 0, risks: 0 } // Placeholder if we don't fetch reactions here
-            }));
+            // Fetch Reactions for these posts to get accurate stats
+            const postIds = posts.map(p => p.id);
+            const { data: allReactions } = await sb
+                .from('reactions')
+                .select('*')
+                .in('post_id', postIds);
+
+            // Sync localStorage reactions for the user
+            if (sbUser) {
+                const myReactionsMap = {};
+                (allReactions || [])
+                    .filter(r => r.user_id === sbUser.id)
+                    .forEach(r => myReactionsMap[r.post_id] = r.type);
+                localStorage.setItem('finmates_reactions', JSON.stringify(myReactionsMap));
+            }
+
+            // Map DB posts to UI structure with real stats
+            allPosts = posts.map(p => {
+                const postReactions = (allReactions || []).filter(r => r.post_id === p.id);
+                const stats = {
+                    likes: postReactions.filter(r => r.type === 'like').length,
+                    insights: postReactions.filter(r => r.type === 'insight').length,
+                    different: postReactions.filter(r => r.type === 'different').length,
+                    risks: postReactions.filter(r => r.type === 'risk').length
+                };
+
+                return {
+                    id: p.id,
+                    user: {
+                        username: p.profiles?.username || 'user',
+                        avatar: p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : 'U',
+                        date: new Date(p.created_at).toLocaleDateString()
+                    },
+                    title: p.title,
+                    description: p.description,
+                    assets: p.assets,
+                    user_id: p.user_id,
+                    stats: stats
+                };
+            });
         }
     }
 
@@ -119,9 +143,10 @@ async function ProfileView() {
 
     } else if (activeTab === 'liked') {
         // Filter by Liked
-        // We need local storage or DB check for likes
+        // We need local storage or DB check for reactions
         const myReactions = JSON.parse(localStorage.getItem('finmates_reactions') || '{}');
-        const likedPostIds = Object.keys(myReactions).filter(id => myReactions[id] === 'like'); // Only 'like' type? Or any reaction? Usually 'Liked' tab implies Hearts/Likes.
+        // Filter any post that has ANY type of reaction from the user
+        const likedPostIds = Object.keys(myReactions);
 
         const likedPosts = allPosts.filter(p => likedPostIds.includes(String(p.id)));
 
