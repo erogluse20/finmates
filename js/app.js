@@ -310,8 +310,8 @@ async function init() {
         window.EDIT_PORTFOLIO_ID = postId;
         navigate('/create');
     };
-    addBtn.addEventListener('click', async () => {
-        if (await checkAuth()) navigate('/create');
+    addBtn.addEventListener('click', () => {
+        navigate('/create');
     });
 
     const homeBtn = document.querySelector('.nav-item:first-child');
