@@ -223,7 +223,7 @@ async function renderFeed() {
         <div class="feed-header" style="position: sticky; top: 0; background: var(--bg-body); z-index: 90; padding: 10px 16px 0;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <img src="img/logo.png" style="width: 56px; height: 56px; object-fit: contain;">
+                    <img src="img/logo.png" style="width: 56px; height: 56px; object-fit: contain; mix-blend-mode: lighten;">
                     <span style="font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px;">Finmates</span>
                 </div>
             </div>
