@@ -74,11 +74,36 @@ function CreatePortfolioView() {
                 <!-- Assets will appear here -->
             </div>
 
-            <button type="button" class="btn-primary" onclick="handleShare()">
+            <button type="button" id="shareBtn" class="btn-primary" onclick="handleShare()" disabled style="opacity: 0.5; cursor: not-allowed;">
                 Paylaş
             </button>
         </form>
     `;
+}
+
+// Validate and enable/disable Share button
+function validateShareButton() {
+    const titleInput = document.querySelector('input[placeholder*="Portföyünüzü tanımlayan"]');
+    const descInput = document.querySelector('textarea');
+    const shareBtn = document.getElementById('shareBtn');
+
+    if (!shareBtn) return;
+
+    const title = titleInput?.value?.trim() || '';
+    const description = descInput?.value?.trim() || '';
+    const currentTotal = portfolioAssets.reduce((sum, item) => sum + item.percent, 0);
+
+    const isValid = title && description && portfolioAssets.length > 0 && currentTotal === 100;
+
+    if (isValid) {
+        shareBtn.disabled = false;
+        shareBtn.style.opacity = '1';
+        shareBtn.style.cursor = 'pointer';
+    } else {
+        shareBtn.disabled = true;
+        shareBtn.style.opacity = '0.5';
+        shareBtn.style.cursor = 'not-allowed';
+    }
 }
 
 // Logic to populate second dropdown
@@ -169,6 +194,9 @@ function handleAddAsset() {
         typeTriggerBtn.style.color = 'var(--text-secondary)';
         typeTriggerBtn.style.border = '1px solid var(--border-color)';
     }
+
+    // Validate Share button
+    validateShareButton();
 }
 
 function updateSliderState() {
@@ -250,6 +278,7 @@ function removeAsset(index) {
     portfolioAssets.splice(index, 1);
     renderAssetList();
     updateSliderState(); // Re-calculate limits
+    validateShareButton(); // Validate Share button
 }
 
 function editAsset(index) {
@@ -448,6 +477,7 @@ function initCreatePortfolio() {
 
             renderAssetList();
             updateSliderState();
+            validateShareButton(); // Validate after populating edit data
         } else {
             // Fallback: Fetch from Supabase
             window.sb.from('posts').select('*').eq('id', window.EDIT_PORTFOLIO_ID).single().then(({ data, error }) => {
@@ -472,4 +502,18 @@ function initCreatePortfolio() {
         // Initial check for clean state
         updateSliderState();
     }
+
+    // Attach input listeners for real-time validation
+    const titleInput = document.querySelector('input[placeholder*="Portföyünüzü tanımlayan"]');
+    const descInput = document.querySelector('textarea');
+
+    if (titleInput) {
+        titleInput.addEventListener('input', validateShareButton);
+    }
+    if (descInput) {
+        descInput.addEventListener('input', validateShareButton);
+    }
+
+    // Initial validation
+    validateShareButton();
 }
