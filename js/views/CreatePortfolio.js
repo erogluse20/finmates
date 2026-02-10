@@ -303,8 +303,6 @@ function editAsset(index) {
 
 
 async function handleShare() {
-    if (!(await checkAuth())) return;
-
     const titleInput = document.querySelector('input[placeholder*="Portföyünüzü tanımlayan"]');
     const descInput = document.querySelector('textarea');
 
@@ -326,13 +324,27 @@ async function handleShare() {
     }
     assetsToSave = [...portfolioAssets];
 
+    // Check if user is authenticated
+    const user = await sb_auth.getUser();
+
+    if (!user) {
+        // Save portfolio data to localStorage for later
+        const pendingPortfolio = {
+            title: title,
+            description: description,
+            assets: assetsToSave
+        };
+        localStorage.setItem('finmates_pending_portfolio', JSON.stringify(pendingPortfolio));
+        localStorage.setItem('finmates_return_to', '/profile');
+
+        // Redirect to login
+        navigate('/login');
+        return;
+    }
+
     // Check if we are updating or creating
     const isUpdate = !!window.EDIT_PORTFOLIO_ID;
 
-    // Get Current User
-    const user = await sb_auth.getUser();
-
-    // Prepare Payload
     // Prepare Payload
     const postPayload = {
         user_id: user.id,
@@ -390,7 +402,7 @@ async function handleShare() {
     // Clear Edit ID
     window.EDIT_PORTFOLIO_ID = null;
 
-    // Navigate to Profile
+    // Navigate to Profile instead of home
     navigate('/profile');
 }
 
