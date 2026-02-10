@@ -96,7 +96,7 @@ async function ProfileView() {
                 return {
                     id: p.id,
                     user: {
-                        username: p.profiles?.username || 'user',
+                        username: p.profiles?.username ? `@${p.profiles.username}` : 'user',
                         avatar: p.profiles?.avatar_url ? `<img src="${p.profiles.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : 'U',
                         date: new Date(p.created_at).toLocaleDateString()
                     },
