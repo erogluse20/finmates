@@ -276,7 +276,7 @@ async function navigate(path) {
     const navItems = document.querySelectorAll('.nav-item');
     if (navItems.length >= 4) {
         if (path === '/') navItems[0].classList.add('active'); // Home
-        if (path === '/explore') navItems[1].classList.add('active'); // Explore/Calendar
+        if (path === '/explore') navItems[1].classList.add('active'); // Explore/User
         if (path === '/notifications') navItems[2].classList.add('active'); // Bell
         if (path === '/settings') navItems[3].classList.add('active'); // Gear
     }
@@ -371,9 +371,9 @@ async function init() {
         navigate('/');
     });
 
-    const calendarBtn = document.querySelector('.ph-calendar-blank').closest('.nav-item');
-    if (calendarBtn) {
-        calendarBtn.addEventListener('click', async (e) => {
+    const profileBtn = document.querySelector('.ph-user').closest('.nav-item');
+    if (profileBtn) {
+        profileBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             // Calendar is now "Portfolios" / Profile view
             if (await checkAuth()) navigate('/profile');
