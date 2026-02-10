@@ -27,7 +27,7 @@ function SettingsView() {
                             <span style="position: absolute; left: 12px; top: 10px; color: var(--text-tertiary);">@</span>
                             <input type="text" id="usernameInput" placeholder="kullaniciadi" style="width: 100%; padding: 8px 12px 8px 32px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary);">
                         </div>
-                        <button id="saveUsernameBtn" onclick="saveUsername()" class="btn-primary" style="padding: 0 16px; font-size: 0.9rem;" disabled>Kaydet</button>
+                        <button id="saveUsernameBtn" onclick="saveUsername()" class="btn-primary" style="padding: 0 16px; font-size: 0.9rem; width: auto; margin-top: 0;" disabled>Kaydet</button>
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px;">
                         *Kullanıcı adı sadece 1 kez değiştirilebilir.
