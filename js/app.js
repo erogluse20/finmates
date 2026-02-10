@@ -282,6 +282,46 @@ async function navigate(path) {
     }
 }
 
+// Publish pending portfolio after login
+window.publishPendingPortfolio = async function () {
+    const pendingData = localStorage.getItem('finmates_pending_portfolio');
+    if (!pendingData) return;
+
+    try {
+        const portfolio = JSON.parse(pendingData);
+        const user = await window.sb_auth.getUser();
+
+        if (!user) {
+            console.warn('No user found, cannot publish pending portfolio');
+            return;
+        }
+
+        const postPayload = {
+            user_id: user.id,
+            title: portfolio.title,
+            description: portfolio.description,
+            assets: portfolio.assets
+        };
+
+        console.log('Publishing pending portfolio:', postPayload);
+        const { data, error } = await window.sb.from('posts').insert(postPayload).select();
+
+        if (error) {
+            console.error('Error publishing pending portfolio:', error);
+            alert('Portföy paylaşılırken bir hata oluştu: ' + error.message);
+            return;
+        }
+
+        console.log('Pending portfolio published successfully:', data);
+        // Clear pending portfolio from localStorage
+        localStorage.removeItem('finmates_pending_portfolio');
+
+    } catch (err) {
+        console.error('Error parsing pending portfolio:', err);
+        localStorage.removeItem('finmates_pending_portfolio');
+    }
+};
+
 async function init() {
     // Check for existing session first
     if (DEV_MODE) {
@@ -299,8 +339,19 @@ async function init() {
         window.currentUser = user;
     }
 
-    // Initial Render - go to home if logged in, otherwise stay on feed (which shows mock data)
-    navigate('/');
+    // Check for pending portfolio and publish if user is logged in
+    if (window.currentUser) {
+        await window.publishPendingPortfolio();
+    }
+
+    // Initial Render
+    const returnPath = localStorage.getItem('finmates_return_to');
+    if (window.currentUser && returnPath && returnPath !== '/login') {
+        localStorage.removeItem('finmates_return_to');
+        navigate(returnPath);
+    } else {
+        navigate('/');
+    }
 
     // Attach Nav Listeners
     const addBtn = document.querySelector('.add-btn');
